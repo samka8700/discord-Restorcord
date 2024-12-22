@@ -1,0 +1,34 @@
+sudo nano /root/.ssh/authorized_keys
+sudo dnf install httpd -y
+sudo systemctl start httpd
+sudo systemctl enable httpd
+sudo firewall-cmd --permanent --add-service={http,https}
+sudo firewall-cmd --reload
+sudo dnf install mariadb mariadb-server -y
+sudo systemctl start mariadb
+sudo systemctl enable mariadb
+sudo mariadb-secure-installation
+sudo dnf install php php-fpm php-mysqlnd php-opcache php-gd php-xml php-mbstring -y
+sudo systemctl start php-fpm
+sudo systemctl enable php-fpm
+dnf install git
+git clone https://github.com/kingcc/cloudflare-ips-only.git
+cd cloudflare-ips-only
+sudo bash ./host.sh
+cd ../
+mysql -u root -p
+CREATE DATABASE restore;
+exit
+mysql -u root -p restore < db.sql
+systemctl restart httpd
+dnf install php-json
+setsebool -P httpd_can_network_connect on
+mysql -u root -p
+USE restore;
+UPDATE `users` SET `role` = 'premium',`expiry` = 2224663363 WHERE `username` = 'yourUsernameHere'
+exit
+dnf install dotnet
+cd restorecord
+dotnet restore
+dotnet build
+systemctl start verify-bot
